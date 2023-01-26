@@ -19,4 +19,27 @@ try {
     res.sendStatus(500);
 }
 
+app.get('/produtos', async (req, res) => {
+    try {
+        const produtos = await db.collection('produtos').find().toArray();
+
+        res.send(produtos);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
+app.post('/produtos', async (req, res) => {
+    const { name, image, value } = req.body;
+
+    try {
+        await db.collection("produtos").insertOne({
+            name, image, value
+        });
+        res.sendStatus(201);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+})
+
 app.listen(process.env.PORT, () => console.log(`Servidor rodou`));
