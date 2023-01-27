@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { MongoClient } from "mongodb";
+import joi from "joi";
 dotenv.config();
 
 const app = express();
@@ -42,4 +43,57 @@ app.post('/produtos', async (req, res) => {
     }
 })
 
-app.listen(process.env.PORT, () => console.log(`Servidor rodou`));
+app.post("/checkout", async (req, res) => {
+    const {produtos, valorTotal, cardName, cardNumber, securityNumber, expirationDate} = req.body;
+    const cartao = {cardName, cardNumber, securityNumber, expirationDate}
+    const arrayProdutos = {produtos}
+    const valor = {valorTotal}
+    try {
+
+        const produtoSchema = joi.array().items(joi.string().required())
+
+        const validationProduto = produtoSchema.validate(arrayProdutos, {abortEarly: false})
+
+        if(validationProduto.error){
+            return res.status(422).send(validationProduto.error.details)
+        }
+        
+        const valorSchema = joi.object({
+            valorTotal: joi.number().required()
+        })
+
+        const validationValor = valorSchema.validate(valor, {abortEarly: false})
+
+        if(validationValor.error){
+            return res.status(422).send(validationValor.error.details)
+        }
+
+        const cardSchema = joi.object({
+            cardName: joi.string().required(),
+            cardNumber: joi.number().required(),
+            securityNumber: joi.number().required(),
+            expirationDate: joi.string().required()
+        })
+
+        const validationCard = cardSchema.validate(cartao, {abortEarly: false})
+
+        if(validationCard.error){
+            return res.status(422).send(validationCard.error.details)
+        }
+
+        await db.collection("comprasFinalizadas").insertOne({
+            produtos: produtos, 
+            valorTotal: valorTotal, 
+            cardName: cardName, 
+            cardNumber: cardNumber, 
+            securityNumber: securityNumber, 
+            expirationDate: expirationDate
+        })
+    } catch (error) {
+        res.status(500).send(error.message)
+    }
+})
+
+PORT = process.env.PORT || 5000
+
+app.listen(PORT, () => console.log(`Servidor rodou`));
