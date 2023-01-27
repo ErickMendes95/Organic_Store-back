@@ -91,7 +91,7 @@ app.post('/produtos', async (req, res) => {
 
     try {
         await db.collection("produtos").insertOne({
-            name, image, value
+            name, image, value, quantity: 1
         });
         res.sendStatus(201);
     } catch (error) {
