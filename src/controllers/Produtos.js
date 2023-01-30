@@ -1,4 +1,3 @@
-import { cardSchema } from '../model/CardSchema.js';
 import db from "../config/database.js";
 
 export async function buscarProdutos(req, res) {
@@ -24,15 +23,8 @@ export async function adicionarProdutos(req, res) {
 }
 export async function checkout(req, res) {
     const {cardName, cardNumber, securityNumber, expirationDate,products, value } = req.body;
-    console.log()
-    const cartao = { cardName, cardNumber, securityNumber, expirationDate }
+    
     try {
-
-        const validationCard = cardSchema.validate(cartao, { abortEarly: false })
-
-        if (validationCard.error) {
-            return res.status(422).send(validationCard.error.details)
-        }
 
         await db.collection("comprasFinalizadas").insertOne({
             products: products,
