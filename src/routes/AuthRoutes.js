@@ -4,7 +4,7 @@ import {Router} from "express"
 const authRouter = Router()
 
 // Rotas de autenticação
-authRouter.post('/signup', signin)
-authRouter.post('/signin', signup)
+authRouter.post('/signup', signup)
+authRouter.post('/signin', signin)
 
 export default authRouter
